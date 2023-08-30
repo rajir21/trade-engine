@@ -19,4 +19,10 @@ public class TradeUpdateRepository {
 		Update updateExpiredFlag = new Update().set("expiredFlag", "Y");
 		mongoTemplate.upsert(query, updateExpiredFlag, Trade.class);
 	}
+	public void upsertTrade(Trade trade){
+		Query query = new Query().addCriteria(Criteria.where("_id").is(trade.get_id() ));
+		Update updateExpiredFlag = new Update().set("expiredFlag", trade.getTradeId());
+	       updateExpiredFlag = new Update().set("expiredFlag", trade.getTradeId());
+		mongoTemplate.upsert(query, updateExpiredFlag, Trade.class);
+	}
 }

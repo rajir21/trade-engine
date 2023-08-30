@@ -3,6 +3,8 @@ package com.db.trade.engine.controller;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +28,17 @@ public class TradeController extends ResponseEntityExceptionHandler {
 	private static final Logger log = LoggerFactory.getLogger(TradeController.class);
 	@Autowired
 	TradeService tradeService;
-
+	@ExceptionHandler(ConstraintViolationException.class)
 	@PostMapping(Constants.TRADE)
-	public ResponseEntity<Object> tradeValidateStore(@RequestBody Trade trade){
+	public ResponseEntity<Object> tradeValidateStore(@Valid @RequestBody Trade trade){
 		//try {
-			if(tradeService.isValid(trade)) {
-				tradeService.persist(trade);
-			}else{
-				throw new InvalidTradeException(trade.getTradeId()+"  Trade Id is not found");
+	 //	Trade tradeDetails = tradeService.isValid(trade);
+
+	   // if( tradeDetails!=null && tradeDetails.getStatus()!=null && !tradeDetails.getStatus().equals("REJECT")) {
+			if( tradeService.isValid(trade) ){
+				//tradeService.persist(trade);
+			} else{
+				throw new InvalidTradeException(trade.getTradeId()+"  Duplicate trade details  or Expired data");
 			}
 		/*}catch(Exception e) {
 			log.error("Exception Occured in isValid {}",e.getMessage());
@@ -45,7 +50,12 @@ public class TradeController extends ResponseEntityExceptionHandler {
 	public ResponseEntity<VndErrors> notFoundException(final InvalidTradeException e) {
 		return error(e, HttpStatus.NOT_ACCEPTABLE, e.getId());
 	}
-
+/*
+	@ExceptionHandler(ConstraintViolationException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ResponseEntity String handleContraintValidation(ConstraintViolationException e){
+		return ResponseEntity<>("Not a valid input Bad Request");
+	} */
 	@GetMapping(Constants.TRADE)
 	public List<Trade> findAllTrades(){
 		return tradeService.findAll();

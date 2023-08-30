@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.db.trade.engine.constants.Constants;
@@ -28,8 +29,19 @@ public class TradeService {
 	
 	@Autowired
 	TradeUpdateRepository tradeUpdateRepository;
+	public String isValid1(Trade trade){
 
+		return (String) HttpClientUtil.httpClientCall(trade, validatorApiURI+Constants.ISVALID).getBody();
+
+		/*
+		ResponseEntity RE = (ResponseEntity)
+				(HttpClientUtil.httpClientCall(trade, validatorApiURI+Constants.ISVALID).getBody());
+
+		//return (String) (HttpClientUtil.httpClientCall(trade, validatorApiURI+Constants.ISVALID).getBody()).toString();
+	   return RE.toString(); */
+	}
 	public boolean isValid(Trade trade){
+
 		return (boolean) HttpClientUtil.httpClientCall(trade, validatorApiURI+Constants.ISVALID).getBody();
 	}
 
@@ -40,7 +52,12 @@ public class TradeService {
 
 	public void  persist(Trade trade){
 		trade.setCreatedDate(LocalDate.now());
+		//if(trade!=null && trade.getStatus()!=null && trade.getStatus().equals("INSERT"))
 		tradeRepository.save(trade);
+		/*else {
+			log.info("Trade which needs to updated {}", trade);
+			tradeUpdateRepository.upsertExpiredFlag(trade.get_id());
+		}*/
 	}
 
 	public List<Trade> findAll(){
